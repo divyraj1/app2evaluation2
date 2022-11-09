@@ -1,9 +1,9 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState,useEffect } from "react";
-import { NavigationContainer,useIsFocused } from '@react-navigation/native';
+import React, { useState, useEffect } from "react";
+import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import  AsyncStorage  from '@react-native-async-storage/async-storage';
-import  realm ,{ addTodo,getAllToDo,deleteToDo} from './database/db'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import realm, { addTodo, getAllToDo, deleteToDo, getFilteredToDo,updateToDo } from './database/db'
 
 import {
   StyleSheet,
@@ -18,187 +18,187 @@ import {
 
 
 
-function Login({navigation},props){
+function Login({ navigation }, props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailValidError, setEmailValidError] = useState('');
   const [passwordValidError, setpasswordValidError] = useState('');
-  
+
   const requestOptions = {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
-};
-const post =() => {
-  fetch("http://10.0.2.2:8080/todo")
+  };
+  const post = () => {
+    fetch("http://10.0.2.2:8080/todo")
       .then(response => response.json())
       .then(jsonResponse => console.log(jsonResponse))
       .catch(error => console.log(error))
 
-      fetch("http://10.0.2.2:8080/login")
+    fetch("http://10.0.2.2:8080/login")
       .then(response => response.json())
       .then(jsonResponse => console.log(jsonResponse))
       .catch(error => console.log(error))
-} 
-const login=()=>{
-   
-     fetch(
-      `http://10.0.2.2:8080/login?username=${email}&password=${password}`,
-      {
-        method: 'POST',
-      },
-    )
-      .then(res => {
-        if (res.status === 200) {
-          navigation.navigate('Home');
+  }
+  const login = () => {
+    console.log("Navigation Called")
+    //  fetch(
+    //   `http://10.0.2.2:8080/login?username=${email}&password=${password}`,
+    //   {
+    //     method: 'POST',
+    //   },
+    // )
+    //   .then(res => {
+    //     if (res.status === 200) {
+    navigation.navigate('Home');
 
-        }
-      })
-      .catch(e => console.log(e));
-}
+    //     }
+    //   })
+    //   .catch(e => console.log(e));
+  }
 
- 
-const  validateemail = (text) => {
+
+  const validateemail = (text) => {
     console.log(text);
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
     if (text.length === 0) {
       setEmailValidError('email address must be entered');
-    }else if (reg.test(text) === false) {
+    } else if (reg.test(text) === false) {
       console.log("Email is Not Correct");
-       setEmail(text)
-       setEmailValidError('Enter valid email address');
+      setEmail(text)
+      setEmailValidError('Enter valid email address');
     }
     else {
-       setEmail(text)
-       console.log("Email is Correct");
-       setEmailValidError('');
+      setEmail(text)
+      console.log("Email is Correct");
+      setEmailValidError('');
     }
   }
 
-const checkPasswordValidity = (value) => {
-  const isNonWhiteSpace = /^\S*$/;
-  if (value && !isNonWhiteSpace.test(value)) {
-    return "Password must not contain Whitespaces.";
-  }
+  const checkPasswordValidity = (value) => {
+    const isNonWhiteSpace = /^\S*$/;
+    if (value && !isNonWhiteSpace.test(value)) {
+      return "Password must not contain Whitespaces.";
+    }
 
-  const isContainsUppercase = /^(?=.*[A-Z]).*$/;
-  if (value && !isContainsUppercase.test(value)) {
-    return "Password must have at least one Uppercase Character.";
-  }
+    const isContainsUppercase = /^(?=.*[A-Z]).*$/;
+    if (value && !isContainsUppercase.test(value)) {
+      return "Password must have at least one Uppercase Character.";
+    }
 
-  const isContainsLowercase = /^(?=.*[a-z]).*$/;
-  if (value && !isContainsLowercase.test(value)) {
-    return "Password must have at least one Lowercase Character.";
-  }
+    const isContainsLowercase = /^(?=.*[a-z]).*$/;
+    if (value && !isContainsLowercase.test(value)) {
+      return "Password must have at least one Lowercase Character.";
+    }
 
-  const isContainsNumber = /^(?=.*[0-9]).*$/;
-  if (value && !isContainsNumber.test(value)) {
-    return "Password must contain at least one Digit.";
-  }
+    const isContainsNumber = /^(?=.*[0-9]).*$/;
+    if (value && !isContainsNumber.test(value)) {
+      return "Password must contain at least one Digit.";
+    }
 
-  const isValidLength = /^.{8,16}$/;
-  if (value && !isValidLength.test(value)) {
-    return "Password must be 8-16 Characters Long.";
-  }
-  return null;
-};
+    const isValidLength = /^.{8,16}$/;
+    if (value && !isValidLength.test(value)) {
+      return "Password must be 8-16 Characters Long.";
+    }
+    return null;
+  };
 
-const validatepassword = (password) => {
-   
-  setPassword(password)
-  console.log(password)
-  setpasswordValidError(checkPasswordValidity(password))
-  
-}
- return(
+  const validatepassword = (password) => {
+
+    setPassword(password)
+    console.log(password)
+    setpasswordValidError(checkPasswordValidity(password))
+
+  }
+  return (
     <View style={styles.container}>
- 
- {emailValidError ? <Text>{emailValidError}</Text> : null}
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.TextInput}
-        placeholder="Email."
-        placeholderTextColor="#003f5c"
-        onChangeText={(email) =>validateemail(email)}
-      />
+
+      {emailValidError ? <Text>{emailValidError}</Text> : null}
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Email."
+          placeholderTextColor="#003f5c"
+          onChangeText={(email) => validateemail(email)}
+        />
+      </View>
+
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Password."
+          placeholderTextColor="#003f5c"
+          secureTextEntry={true}
+          onChangeText={(password) => validatepassword(password)}
+        />
+      </View>
+      {passwordValidError ? <Text>{passwordValidError}</Text> : null}
+
+      <TouchableOpacity>
+        <Text style={styles.forgot_button}>Forgot Password?</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.loginBtn} onPress={() => { login() }}>
+        <Text style={styles.loginText}>LOGIN</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.SignUpBtn} onPress={() => { props.setShow(!props.show) }}>
+        <Text style={styles.loginText}>SignUP</Text>
+      </TouchableOpacity>
     </View>
-   
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.TextInput}
-        placeholder="Password."
-        placeholderTextColor="#003f5c"
-        secureTextEntry={true}
-        onChangeText={(password) => validatepassword(password)}
-      />
-    </View>
-    {passwordValidError ? <Text>{passwordValidError}</Text> : null}
-
-    <TouchableOpacity>
-      <Text style={styles.forgot_button}>Forgot Password?</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity style={styles.loginBtn} onPress={()=>{login()}}>
-      <Text style={styles.loginText}>LOGIN</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity style={styles.SignUpBtn}  onPress={() =>{props.setShow(!props.show)}}>
-      <Text style={styles.loginText}>SignUP</Text>
-    </TouchableOpacity>
-  </View>
 
   )
 
 }
 
-function SignUp(props){
+function SignUp(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setname] = useState("");
-  return(
+  return (
     <View style={styles.container}>
- 
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.TextInput}
-        placeholder="Name"
-        placeholderTextColor="#003f5c"
-        onChangeText={(name) => setname(email)}
-      />
-    </View>
-    
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.TextInput}
-        placeholder="Email."
-        placeholderTextColor="#003f5c"
-        onChangeText={(email) => setEmail(email)}
-      />
-    </View>
 
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.TextInput}
-        placeholder="Password."
-        placeholderTextColor="#003f5c"
-        secureTextEntry={true}
-        onChangeText={(password) => setPassword(password)}
-      />
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Name"
+          placeholderTextColor="#003f5c"
+          onChangeText={(name) => setname(email)}
+        />
+      </View>
+      ......
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Email."
+          placeholderTextColor="#003f5c"
+          onChangeText={(email) => setEmail(email)}
+        />
+      </View>
+
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Password."
+          placeholderTextColor="#003f5c"
+          secureTextEntry={true}
+          onChangeText={(password) => setPassword(password)}
+        />
+        ........................    </View>
+
+
+      <TouchableOpacity style={styles.loginBtn}>
+        <Text style={styles.loginText}>SignUp</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.SignUpBtn} onPress={() => { props.setShow(!props.show) }}>
+        <Text style={styles.loginText}>Login</Text>
+      </TouchableOpacity>
     </View>
-
-    
-    <TouchableOpacity style={styles.loginBtn}>
-      <Text style={styles.loginText}>SignUp</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity style={styles.SignUpBtn} onPress={() =>{props.setShow(!props.show)}}>
-      <Text style={styles.loginText}>Login</Text>
-    </TouchableOpacity>
-  </View>
 
   )
 
-} 
-function AddToDo({navigation},props){
+}
+function AddToDo({ navigation }, props) {
   const [Title, setTitle] = useState("");
   const [Due_Date, setDue_Date] = useState("");
 
@@ -207,9 +207,9 @@ function AddToDo({navigation},props){
     const todos = JSON.parse(data);
     todos.push({
       Title: Title,
-      Due_Date:Due_Date,
+      Due_Date: Due_Date,
     });
-    addTodo(Title,Due_Date) 
+    addTodo(Title, Due_Date)
     await AsyncStorage.setItem('todos', JSON.stringify(todos));
     setTitle('');
     setDue_Date('');
@@ -217,201 +217,249 @@ function AddToDo({navigation},props){
   };
 
 
-  return(
+  return (
     <View style={styles.container}>
- 
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.TextInput}
-        placeholder="Title"
-        placeholderTextColor="#003f5c"
-        onChangeText={(title) => setTitle(title)}
+
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Title"
+          placeholderTextColor="#003f5c"
+          onChangeText={(title) => setTitle(title)}
+        />
+      </View>
+
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.TextInput}
+          placeholder="Due_Date"
+          placeholderTextColor="#003f5c"
+          onChangeText={(date) => setDue_Date(date)}
+        />
+      </View>
+
+
+      <TouchableOpacity style={styles.loginBtn} onPress={() => { handleAddTodo() }}>
+        <Text style={styles.loginText}>Add ToDo</Text>
+      </TouchableOpacity>
+
+      <Button
+        title="Go to  profile"
+        onPress={() =>
+          navigation.navigate('Home')
+        }
       />
+
     </View>
-    
-    <View style={styles.inputView}>
-      <TextInput
-        style={styles.TextInput}
-        placeholder="Due_Date"
-        placeholderTextColor="#003f5c"
-        onChangeText={(date) => setDue_Date(date)}
-      />
-    </View>
-
-    
-    <TouchableOpacity style={styles.loginBtn} onPress={()=>{handleAddTodo()}}>
-      <Text style={styles.loginText}>Add ToDo</Text>
-    </TouchableOpacity>
-
-    <Button
-      title="Go to  profile"
-      onPress={() =>
-        navigation.navigate('Home')
-      }
-    />
-
-  </View>
 
   )
 
 }
 const ProfileScreen = ({ navigation, route }) => {
   return <Text>This is {route.params.name}'s profile</Text>;
-}; 
+};
 
 
-const Item = ({ data }) => (
-  <View style={styles.items}>
-    <Text style={styles.dataelement}>Title:{data.Title}</Text>
-    <Text style={styles.dataelement}>Due Date:{data.Due_Date}</Text>
-   <View style={{flex:1,flexDirection:'column'}}>
-    <TouchableOpacity>
-      <Text>Edit</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity onPress={()=>{deleteToDo(data._id)}} >
-      <Text>Delete</Text>
-    </TouchableOpacity>
+const Item = (props) => (
+  <View style={{
+    //borderColor: 'red',
+    marginTop:5,
+    marginLeft:12,
+   // borderWidth: 5,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    borderRadius:5,
+    backgroundColor:'#FFFFFF',
+    width:'90%'
+  }}>
+    <View style={{
+      marginHorizontal: 50
+      
+    }}> 
+      <Text style={styles.dataelement}>Title:{props.data.Title}</Text>
+      <Text style={styles.dataelement}>Due_Date:{props.data.Due_Date}</Text>
     </View>
-
-  </View>
+    <View style={{
+      marginHorizontal: 50
+      
+    }}>
+      <TouchableOpacity onPress={() => { updateToDo(props.data._id,"Done"), props.setDone("" + '-') }}>
+        <Text>MarkDone</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => { deleteToDo(props.data._id), props.SetDeletepressed("" + '-') }} >
+        <Text>Delete</Text>
+      </TouchableOpacity>
+    </View>
+   </View>
 );
 
-function Home({navigation}){
+function Home({ navigation }) {
 
-  const renderItem = ({item},prop ) => (
-    <>
-    <Item data={item} />
-    </>
-  ); 
-const isFocused = useIsFocused()
-const [myData,setmyData]=useState([])
-const [allToDo,setAllToDo]=useState(false)
-const [pending,setAllpending]=useState(false)
-const [Done,setDone]=useState(false)
-const [Deletepressed,SetDeletepressed]=useState('')
-const _retrieveData = async () => {
-  try {
-    const value = await AsyncStorage.getItem('todos');
-    if (value !== null) {
-      const data = JSON.parse(value)
-      console.log(getAllToDo())
-      setmyData(getAllToDo())
+  const renderItem = ({ item }) => {
+    return (<>
+      <Item data={item} SetDeletepressed={SetDeletepressed} setDone={setDone}/>
+    </>)
+  };
+  const isFocused = useIsFocused()
+  const [myData, setmyData] = useState([])
+  const [allToDo, setAllToDo] = useState('')
+  const [pending, setAllpending] = useState('')
+  const [Done, setDone] = useState('')
+  const [Deletepressed, SetDeletepressed] = useState('')
+  
+  const _retrieveData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('todos');
+      if (value !== null) {
+        const data = JSON.parse(value)
+       // console.log(getAllToDo())
+        setmyData(getAllToDo())
+       // console.log("filterd Done Todo",getFilteredToDo("Done"))
+      }
+    } catch (error) {
+      // Error retrieving data
     }
-  } catch (error) {
-    // Error retrieving data
+  };
+  const _retrieveDoneData = () => {
+    try {
+      const value =  getFilteredToDo("Done")
+      if (value !== null) {
+       // const data = JSON.parse(value)
+       console.log("ToDos in Done Data",value)
+        setmyData(value)
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+  const _retrievePendingData = () => {
+    try {
+      const value =  getFilteredToDo("Pending")
+      if (value !== null) {
+       // const data = JSON.parse(value)
+       console.log("ToDos in Done Data",value)
+        setmyData(value)
+      }
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+
+  useEffect(() => {
+    _retrieveData()
+  }, []);
+  useEffect(() => {
+    _retrieveData()
+    setAllToDo(allToDo+'-')
+    setAllpending(pending+'-')
+    setDone(Done+'-')
+  }, [Deletepressed]);
+  const addtodo = () => {
+
+    navigation.navigate("AddToDo")
+
   }
-}; 
-useEffect(() => {
-  _retrieveData()
-}, [isFocused]);  
 
-const addtodo=()=>{
-   
-  navigation.navigate("AddToDo")
+  useEffect(() => {
 
-}
+    _retrieveData()
+    console.log("Filtered Todo", getFilteredToDo("Pending"))
+    console.log("All Todo", myData)
 
-useEffect(()=>{
+  }
+    , [allToDo])
 
-  _retrieveData()
-  console.log("All Todo",myData)
+  useEffect(() => {
 
-}
-,[allToDo])
+    _retrievePendingData()
+    console.log("Pending ToDo", myData)
 
-useEffect(()=>{
+  }
+    , [pending])
 
-  _retrieveData()
-  console.log("Pending ToDo",myData)
-
-}
-,[pending])
-
-useEffect(()=>{
-
-  _retrieveData()
-  console.log("Pending ToDo",myData)
-
-}
-,[Done])
+  useEffect(() => {
+    console.log("Done Pressed")
+    _retrieveDoneData()
+  }
+  ,[Done])
 
 
 
-  return(
+  return (
     <View style={styles.container}>
-      
-      <Text style={{height:100,marginTop:40,fontSize:25 }}>Hello Nikhil</Text>
+
+      <Text style={{ height: 100, marginTop: 40, fontSize: 25 }}>Hello Nikhil</Text>
       {/* <Image style={styles.icon}
         source={AddButton}
       /> */}
-       
-       <TouchableOpacity style={styles.SignUpBtn}  onPress={() =>{addtodo()}}>
-         <Text style={styles.loginText}>AddTodo</Text>
-       </TouchableOpacity>
 
-       <View style={styles.tododoingdoneView}>
-       <TouchableOpacity  onPress={() =>{setAllToDo(true);setAllpending(false);setDone(false)}}>
-       <Text style={[styles.tododoingdoneViewtext]}>AllToDo</Text>
-       </TouchableOpacity>
-       <TouchableOpacity  onPress={() =>{setAllToDo(false);setAllpending(true);setDone(false)}}>
-       <Text style={styles.tododoingdoneViewtext}>Pending</Text>
-       </TouchableOpacity>
-       <TouchableOpacity  onPress={() =>{setAllToDo(false);setAllpending(false);setDone(true)}}>
-       <Text style={styles.tododoingdoneViewtext}>Done</Text>
-       </TouchableOpacity> 
-       </View>    
-{
-                (() => {
-                    if(allToDo==true) {
-                            return (
-                              <FlatList
-                              data={myData}
-                              renderItem={renderItem}
-                              keyExtractor={item => item.id}
-                            />
-                            )
-                         }  else if (pending==true) {
-                              return (
-                                <FlatList
-                                data={myData}
-                                renderItem={renderItem}
-                                keyExtractor={item => item.id}
-                               />
-                              )
-                              
-                           } 
-                           else {
-                              return (
-                                <FlatList
-                                data={myData}
-                                renderItem={renderItem}
-                                keyExtractor={item => item.id}
-                              />
-                              )
-                        }
-                      
-                })()  
-            } 
-       <TouchableOpacity style={styles.SignUpBtn}  onPress={() =>{navigation.navigate("LogIn")}}>
-         <Text style={styles.loginText}>Logout</Text>
-       </TouchableOpacity>
+      <TouchableOpacity style={styles.addToDoBtn} onPress={() => { addtodo() }}>
+        <Text style={styles.loginText}>AddTodo</Text>
+      </TouchableOpacity>
+
+      <View style={styles.tododoingdoneView}>
+        <TouchableOpacity onPress={() => { setAllToDo(allToDo+'-') }}>
+          <Text style={[styles.tododoingdoneViewtext]}>AllToDo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { setAllpending(pending+'-') }}>
+          <Text style={styles.tododoingdoneViewtext}>Pending</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => {  setDone(Done+'-') }}>
+          <Text style={styles.tododoingdoneViewtext}>Done</Text>
+        </TouchableOpacity>
+      </View>
+      {
+        (() => {
+          if (allToDo == true) {
+            return (
+              <FlatList
+                data={myData}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+
+              />
+            )
+          } else if (pending == true) {
+            return (
+              <FlatList
+                data={myData}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+              />
+            )
+
+          }
+          else {
+            return (
+              <FlatList
+                data={myData}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+              />
+            )
+          }
+
+        })()
+      }
+      <TouchableOpacity style={styles.SignUpBtn} onPress={() => { navigation.navigate("LogIn") }}>
+        <Text style={styles.loginText}>Logout</Text>
+      </TouchableOpacity>
     </View>
   )
 
-  } 
+}
 
-  _storeData = async () => {
-    try {
-      await AsyncStorage.setItem(
-        'key',
-        'I like to save it.'
-      );
-    } catch (error) {
-      // Error saving data
-    }
-  };
-  
+_storeData = async () => {
+  try {
+    await AsyncStorage.setItem(
+      'key',
+      'I like to save it.'
+    );
+  } catch (error) {
+    // Error saving data
+  }
+};
+
 
 const Stack = createNativeStackNavigator();
 
@@ -422,7 +470,7 @@ AsyncStorage.setItem('todos', JSON.stringify([]));
 
 export default function App() {
   //const [show, setShow] = useState(false);
-    const [todoAdded,settodoAdded]=useState(false)
+  const [todoAdded, settodoAdded] = useState(false)
   return (
     // <View style={styles.parentcontainer} >
     // <Text style={styles.text}>ToDo App</Text>
@@ -430,17 +478,17 @@ export default function App() {
     // </View>
     // <>
     // <Login/>
-     
-  //   </>
-      
+
+    //   </>
+
     <NavigationContainer>
       <Stack.Navigator>
-      <Stack.Screen name="LogIn" component={Login} />
+        <Stack.Screen name="LogIn" component={Login} />
         <Stack.Screen name="AddToDo" component={AddToDo} />
         <Stack.Screen name="Home" component={Home} />
       </Stack.Navigator>
-    </NavigationContainer>    
-    
+    </NavigationContainer>
+
     // <FlatList
     // data={getAllToDo()}
     // keyExtractor={(item, index) => index.toString()}
@@ -454,43 +502,43 @@ export default function App() {
     //     )
     // }} />
 
-   //  <AddToDo/>
-    
-   
+    // <AddToDo/>
+
+
   );
 }
- 
+
 const styles = StyleSheet.create({
   items: {
-    borderRadius:10,
-    backgroundColor: '#f0ffff',
+    borderRadius: 10,
+    backgroundColor: '#ffe4c4',
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
+
+    marginVertical: 4,
   },
   dataelement: {
     fontSize: 18,
   },
-  text:{
-    flex:1,
-    marginLeft:70,
+  text: {
+    flex: 1,
+    marginLeft: 70,
     fontSize: 50,
-    color:'#ff1493'
-  }, 
+    color: '#ff1493'
+  },
   parentcontainer: {
-    flex:1,
-    flexDirection:'column',
-    backgroundColor: "#dcdcdc",   
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: "#808080",
   },
   container: {
     flex: 1,
-    height:20,
-    backgroundColor: "#fff",
+    height: 20,
+    backgroundColor: "#808080",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 20
 
-    
+
   },
   inputView: {
     backgroundColor: "#f5f5f5",
@@ -500,20 +548,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center",
   },
- 
+
   TextInput: {
     height: 50,
     flex: 1,
     padding: 10,
     marginLeft: 20,
-    color:"#000000"
+    color: "#000000"
   },
- 
+
   forgot_button: {
     height: 30,
     marginBottom: 30,
   },
- 
+
   loginBtn: {
     width: "80%",
     borderRadius: 5,
@@ -523,7 +571,17 @@ const styles = StyleSheet.create({
     marginTop: 40,
     backgroundColor: "#841584",
   },
-  SignUpBtn:{
+  SignUpBtn: {
+    width: "20%",
+    borderRadius: 5,
+    height: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+    backgroundColor: "#841584",
+  },
+  addToDoBtn: {
+    marginBottom:20,
     width: "20%",
     borderRadius: 5,
     height: 25,
@@ -536,17 +594,17 @@ const styles = StyleSheet.create({
     width: 25,
     height: 20,
   },
-  HomeHeader:{
-    justifyContent:"center",
-    alignItems:"center",
-    flex:1,
-    height:50,
-    width:400,
-    backgroundColor:	'#ffd700',
-    
+  HomeHeader: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    height: 50,
+    width: 400,
+    backgroundColor: '#ffd700',
+
   },
   item: {
-    width:350,
+    width: 350,
     backgroundColor: '#f9c2ff',
     padding: 20,
     marginVertical: 8,
@@ -555,29 +613,29 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
   },
-  tododoingdoneView:{
+  tododoingdoneView: {
     flexDirection: 'row',
     backgroundColor: 'white',
     padding: 20,
     width: '85%',
     borderRadius: 18,
     zIndex: 2,
-    
-    shadowColor: "#000",
-   shadowOffset: {
-     width: 0,
-     height: 2,
-    },
-   shadowOpacity: 0.23,
-   shadowRadius: 10,
 
-   elevation: 4,
-    
- },
-tododoingdoneViewtext:{
-   fontSize: 20,
-   marginHorizontal: 20,
-   
- },
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 10,
+
+    elevation: 4,
+
+  },
+  tododoingdoneViewtext: {
+    fontSize: 20,
+    marginHorizontal: 20,
+
+  },
 
 });
